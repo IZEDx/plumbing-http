@@ -1,0 +1,16 @@
+.gitignore
+tsconfig.json
+.travis.yml
+tests/
+docs/
+coverage/
+.vscode/
+.idea/
+npm-debug.log
+ts-node-*/
+.cache/
+.nyc_output
+src/
+dist/**/*.map
+dist/**/*.spec.js
+types/**/*.spec.d.ts

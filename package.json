@@ -1,0 +1,66 @@
+{
+  "name": "plumbing-http",
+  "version": "0.0.1",
+  "description": "",
+  "source": "src/index.ts",
+  "browser": "dist/es5-commonjs/index.js",
+  "module": "dist/es5-esm/index.js",
+  "main": "dist/es2015-commonjs/index.js",
+  "es2015": "dist/es2015-esm/index.js",
+  "esnext": "dist/esnext/index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "build-es5-commonjs": "npx tsc --target es5 --module commonjs --outDir dist/es5-commonjs",
+    "build-es5-esm": "npx tsc --target es5 --module es6 --outDir dist/es5-esm",
+    "build-es2015-commonjs": "npx tsc",
+    "build-es2015-esm": "npx tsc --target es2015 --module es6 --outDir dist/es2015-esm",
+    "build-esnext": "npx tsc --target esnext --module esnext --outDir dist/esnext",
+    "build": "rm -rf dist && npm run build-es5-commonjs && npm run build-es5-esm && npm run build-es2015-commonjs && npm run build-es2015-esm && npm run build-esnext",
+    "watch": "npx tsc --watch",
+    "deploy": "npm run build && npm publish",
+    "test": "npx mocha -r ts-node/register ./**/*.spec.ts",
+    "docs": "npx typedoc --out docs src"
+  },
+  "baseUrl": ".",
+  "paths": {
+    "operators/*": [
+      "./dist/operators/*"
+    ]
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IZEDx/plumbing-http.git"
+  },
+  "author": "Niklas Kühtmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IZEDx/plumbing-http/issues"
+  },
+  "homepage": "https://github.com/IZEDx/plumbing-http#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.4",
+    "@types/koa": "^2.0.51",
+    "@types/koa-bodyparser": "^4.3.0",
+    "@types/koa-json": "^2.0.18",
+    "@types/koa-logger": "^3.1.1",
+    "@types/koa-router": "^7.0.42",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.4.1",
+    "typedoc": "^0.15.0",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "@types/node": "^12.11.6",
+    "koa": "^2.10.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-json": "^2.0.2",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^7.4.0",
+    "plumbing-toolkit": "^1.0.4"
+  }
+}
