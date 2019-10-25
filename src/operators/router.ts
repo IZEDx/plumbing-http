@@ -1,12 +1,12 @@
 
 import Koa from "koa";
 import Router from "koa-router";
-import { Operator, through, MaybePromise } from "plumbing-toolkit";
+import { Operator, through, pipe, from, first, MaybePromise } from "plumbing-toolkit";
 
 export type RouteContext = Koa.ParameterizedContext<any, Router.IRouterParamContext<any, {}>>;
 export type RoutePath = string | RegExp | (string | RegExp)[];
 export type RouteMiddleware = (context: RouteContext, next: () => Promise<any>) => any;
-export type RouteHandler = ((ctx: RouteContext) => MaybePromise<Partial<RouteContext>>);
+export type RouteHandler = Operator<RouteContext, Partial<RouteContext>>;
 
 export interface Route<M extends "GET"|"POST"|"PUT"|"DELETE">
 {
@@ -27,9 +27,10 @@ export function router(opts?: Router.IRouterOptions): (...routes: Route<any>[]) 
         const router = new Router(opts);
         for (const route of routes) {
 
-            const middlewares: RouteMiddleware[] = route.handlers.map(m => {
+            const middlewares: RouteMiddleware[] = route.handlers.map(op => {
                 return async ctx => {
-                    Object.assign(ctx, m(ctx))
+                    const newCtx = await pipe(from([ctx])).chain(op, first());
+                    Object.assign(ctx, newCtx);
                 }
             });
 
@@ -44,4 +45,13 @@ export function router(opts?: Router.IRouterOptions): (...routes: Route<any>[]) 
         app.use(router.routes());
         outlet.next(app);
     });
+}
+
+export function respond<T>(newCtx: Partial<RouteContext>|((v: T) => MaybePromise<Partial<RouteContext>>)): Operator<T, Partial<RouteContext>>
+{
+    return through(async (v, outlet) => outlet.next(
+        typeof newCtx === "function"
+            ? await newCtx(v)
+            : newCtx
+    ));
 }

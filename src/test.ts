@@ -1,13 +1,26 @@
-import { Outlet } from "plumbing-toolkit";
+import { Outlet, error, map, forEach } from "plumbing-toolkit";
 import { server } from "./springs/server";
 import { listen } from "./operators/listen";
-import { router, get } from "./operators/router";
+import { router, get, respond } from "./operators/router";
+import { fetch } from "./operators";
 
 const myServer = server().chain(
     router()(
-        get("/", (ctx) => ({
-            body: "Hello World"
-        }))
+        get("/", req => req.chain(
+            map(ctx => ctx.query),
+            fetch.get<{foo: string}>({
+                url: "http://www.mocky.io/v2/5db23725350000e117f54f0a"
+            }),
+            forEach(r => console.log(r.data.foo)),
+            error((err, outlet) => {
+                outlet.next({
+                    data: err.toString()
+                } as any)
+            }),
+            respond(res => ({
+                body: res.data
+            }))
+        ))
     ),
     listen(8080)
 );
@@ -15,7 +28,7 @@ const myServer = server().chain(
 myServer.flush(Outlet.to(
     server => {
         console.log("Server listening on port 8080");
-        setTimeout(() => server.close(), 10000); // Stop after 10 seconds
+        setTimeout(() => server.close(), 60000); // Stop after 60 seconds
     }, 
     err => {
         console.log("Error starting the server");
